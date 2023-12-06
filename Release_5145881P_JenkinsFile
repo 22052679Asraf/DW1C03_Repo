@@ -9,45 +9,63 @@ pipeline {
             }
         }
 
-        stage('Build') {
+        stage('S1 5145881P') {
             steps {
-                echo 'Building the application'
-                // Add your build steps here
+                echo 'Stage1_5145881P : Release Environment Preparation Completed'
+                
             }
         }
 
-        stage('Tests') {
+
+         stage('S2 5145881P') {
+            steps {
+                echo 'Stage2_5145881P : Release Container WebApp_<your POLITE id> Created Completed'
+
+            }
+        }
+
+        stage('S3 5145881P') {
             parallel {
-                stage('Unit Tests') {
+                stage('S3 API TEST') {
                     steps {
-                        echo 'Running unit tests'
-                        // Add your unit test steps here
+                        echo 'Stage3_5145881P: API Test Completed'
                     }
                 }
-                stage('Integration Tests') {
+                stage('S3 SCAN TEST') {
                     steps {
-                        echo 'Running integration tests'
-                        // Add your integration test steps here
+                        echo 'Stage3_5145881P: Scan Test Completed'
                     }
                 }
             }
         }
 
-        stage('Deploy') {
+         stage('Deploy') {
             steps {
                 script {
                     echo 'Prompting for deployment confirmation'
-                    input message: 'Do you want to deploy?', ok: 'Deploy'
+                    def userInput = input message: 'Do you want to deploy?', parameters: [choice(name: 'DeployOption', choices: 'Deploy\nAbort', description: 'Choose deploy option')]
+                    
+                    if (userInput == 'Deploy') {
+                        echo 'Deploying the application'
+                        currentBuild.result = 'SUCCESS'
+                    } else {
+                        echo 'Aborting deployment'
+                        currentBuild.result = 'ABORTED'
+                    }
                 }
-                echo 'Deploying the application'
-                // Add your deployment steps here
             }
         }
 
         stage('Finalize') {
             steps {
-                echo 'Finalizing the deployment'
-                // Add any additional steps for finalization here
+                script {
+                    if (currentBuild.result == 'ABORTED') {
+                        echo 'Stage 5: No! Deployment was aborted.'
+                    } else {
+                        echo 'Stage 5: Hi! Deployment completed successfully.'
+                        // Add any additional steps for finalization here
+                    }
+                }
             }
         }
     }
@@ -60,6 +78,10 @@ pipeline {
         failure {
             echo 'Pipeline failed! Check logs for details.'
             // Add failure notifications or actions here
+        }
+        aborted {
+            echo 'Pipeline aborted! Deployment was not completed.'
+            // Add notifications or actions specific to aborted state
         }
     }
 }
