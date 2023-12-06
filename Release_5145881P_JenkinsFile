@@ -2,6 +2,13 @@ pipeline {
     agent any
 
     stages {
+        stage('Checkout') {
+            steps {
+                echo 'Checking out code from Git repository'
+                checkout scm
+            }
+        }
+
         stage('S1 5145881P') {
             steps {
                 echo 'Stage1_5145881P : Release Environment Preparation Completed'
@@ -12,7 +19,7 @@ pipeline {
 
          stage('S2 5145881P') {
             steps {
-                echo 'Stage2_5145881P : Release Container WebApp_<your POLITE id> Created Completed'
+                echo 'Stage2_5145881P : Release Container WebApp_5145881P Created Completed'
 
             }
         }
@@ -32,36 +39,36 @@ pipeline {
             }
         }
 
-        stage('Deploy') {
+         stage('S4 5145881P') {
             steps {
                 script {
-                    echo 'Step 4: Prompting for deployment confirmation'
-                    def userInput = input message: 'Do you want to proceed with deployment?', parameters: [choice(name: 'DeployOption', choices: 'Proceed\nAbort', description: 'Choose deployment option')]
-                    
-                    if (userInput == 'Proceed') {
-                        echo 'Step 5: Deployment completed successfully. Hi!'
-                    } else {
-                        echo 'Step 5: Deployment was aborted. No!'
-                        currentBuild.result = 'ABORTED'
+                    def userInput = input(
+                        id: 'userInput',
+                        message: '5145881P, proceed to release the work to next phase?',
+                        parameters: [
+                            choice(choices: 'Proceed\nAbort', description: 'Select an option:', name: 'ACTION')
+                        ]
+                    )
+
+                    if (userInput.ACTION == 'Abort') {
+                        error('Pipeline aborted by user.')
                     }
                 }
             }
         }
 
-    }
+        stage('S5 5145881P') {
+            steps {
+                script {
+                    echo 'Executing Stage 5...'
 
-    post {
-        success {
-            echo 'Pipeline succeeded!'
-            // Add success notifications or actions here
-        }
-        failure {
-            echo 'Pipeline failed! Check logs for details.'
-            // Add failure notifications or actions here
-        }
-        aborted {
-            echo 'Pipeline aborted! Deployment was not completed. No!'
-            // Add notifications or actions specific to aborted state
+                    if (currentBuild.resultIsBetterOrEqualTo('ABORTED')) {
+                        echo 'Stage5_5145881P : Work Release – Proceeds to Next Phase'
+                    } else {
+                        echo 'Stage5_5145881P : Work Release - Stops'
+                    }
+                }
+            }
         }
     }
 }
