@@ -16,24 +16,38 @@ pipeline {
             }
         }
 
-        stage('Unit Tests') {
-            steps {
-                echo 'Running unit tests'
-                // Add your unit test steps here
-            }
-        }
-
-        stage('Integration Tests') {
-            steps {
-                echo 'Running integration tests'
-                // Add your integration test steps here
+        stage('Tests') {
+            parallel {
+                stage('Unit Tests') {
+                    steps {
+                        echo 'Running unit tests'
+                        // Add your unit test steps here
+                    }
+                }
+                stage('Integration Tests') {
+                    steps {
+                        echo 'Running integration tests'
+                        // Add your integration test steps here
+                    }
+                }
             }
         }
 
         stage('Deploy') {
             steps {
+                script {
+                    echo 'Prompting for deployment confirmation'
+                    input message: 'Do you want to deploy?', ok: 'Deploy'
+                }
                 echo 'Deploying the application'
                 // Add your deployment steps here
+            }
+        }
+
+        stage('Finalize') {
+            steps {
+                echo 'Finalizing the deployment'
+                // Add any additional steps for finalization here
             }
         }
     }
