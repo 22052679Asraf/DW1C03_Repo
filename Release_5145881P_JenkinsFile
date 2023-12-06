@@ -39,33 +39,28 @@ pipeline {
             }
         }
 
-         stage('S4 5145881P') {
+         stage('Stage 4') {
             steps {
                 script {
-                    def userInput = input(
-                        id: 'userInput',
-                        message: '5145881P, proceed to release the work to next phase?',
-                        parameters: [
-                            choice(choices: 'Proceed\nAbort', description: 'Select an option:', name: 'ACTION')
-                        ]
-                    )
-
-                    if (userInput.ACTION == 'Abort') {
-                        error('Pipeline aborted by user.')
+                    def userInput = input(message: 'Do you want to proceed?', ok: 'Proceed', parameters: [booleanParam(defaultValue: true, description: 'Proceed?', name: 'PROCEED')])
+                    
+                    if (!userInput.PROCEED) {
+                        error('Pipeline aborted by user')
                     }
                 }
             }
         }
 
-        stage('S5 5145881P') {
+        stage('Stage 5') {
             steps {
                 script {
-                    echo 'Executing Stage 5...'
+                    echo 'Executing Stage 5'
 
+                    // Add logic based on the result of Stage 4
                     if (currentBuild.resultIsBetterOrEqualTo('ABORTED')) {
-                        echo 'Stage5_5145881P : Work Release – Proceeds to Next Phase'
+                        echo 'Pipeline was aborted in Stage 4'
                     } else {
-                        echo 'Stage5_5145881P : Work Release - Stops'
+                        echo 'Pipeline successfully completed'
                     }
                 }
             }
