@@ -2,13 +2,6 @@ pipeline {
     agent any
 
     stages {
-        stage('Checkout') {
-            steps {
-                echo 'Checking out code from Git repository'
-                checkout scm
-            }
-        }
-
         stage('S1 5145881P') {
             steps {
                 echo 'Stage1_5145881P : Release Environment Preparation Completed'
