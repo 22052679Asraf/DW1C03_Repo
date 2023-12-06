@@ -32,35 +32,22 @@ pipeline {
             }
         }
 
-         stage('Deploy') {
+        stage('Deploy') {
             steps {
                 script {
-                    echo 'Prompting for deployment confirmation'
-                    def userInput = input message: 'Do you want to deploy?', parameters: [choice(name: 'DeployOption', choices: 'Deploy\nAbort', description: 'Choose deploy option')]
+                    echo 'Step 4: Prompting for deployment confirmation'
+                    def userInput = input message: 'Do you want to proceed with deployment?', parameters: [choice(name: 'DeployOption', choices: 'Proceed\nAbort', description: 'Choose deployment option')]
                     
-                    if (userInput == 'Deploy') {
-                        echo 'Deploying the application'
-                        currentBuild.result = 'SUCCESS'
+                    if (userInput == 'Proceed') {
+                        echo 'Step 5: Deployment completed successfully. Hi!'
                     } else {
-                        echo 'Aborting deployment'
+                        echo 'Step 5: Deployment was aborted. No!'
                         currentBuild.result = 'ABORTED'
                     }
                 }
             }
         }
 
-        stage('Finalize') {
-            steps {
-                script {
-                    if (currentBuild.result == 'ABORTED') {
-                        echo 'Stage 5: No! Deployment was aborted.'
-                    } else {
-                        echo 'Stage 5: Hi! Deployment completed successfully.'
-                        // Add any additional steps for finalization here
-                    }
-                }
-            }
-        }
     }
 
     post {
@@ -73,7 +60,7 @@ pipeline {
             // Add failure notifications or actions here
         }
         aborted {
-            echo 'Pipeline aborted! Deployment was not completed.'
+            echo 'Pipeline aborted! Deployment was not completed. No!'
             // Add notifications or actions specific to aborted state
         }
     }
